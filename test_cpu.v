@@ -1,17 +1,22 @@
-
+`timescale 1ns/1ps
+`include "DEFINE.v"
 module test_cpu();
 	
-	reg reset;
+	reg rst;
 	reg clk;
-	
-	CPU cpu1(reset, clk);
-	
+	wire [`INST_BUS] temp;
+
+	TOP TOP0(.rst(rst),.clk(clk),.temp(temp));
+
 	initial begin
-		reset = 1;
-		clk = 1;
-		#100 reset = 0;
+		clk = 1'b0;
+		forever #50 clk=~clk;
 	end
 	
-	always #50 clk = ~clk;
-		
+	initial begin
+		rst=`RST_ENABLE;
+		#100 rst=`RST_DISABLE;
+		#2000 $stop;
+	end
+
 endmodule
