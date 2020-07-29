@@ -76,6 +76,14 @@ module CPU(
 		//from regfile
 		.rdata1_i(id_rdata1_i),
 		.rdata2_i(id_rdata2_i),
+		//from ex
+		.ex_waddr_i(ex_waddr_o),
+		.ex_we_i(ex_we_o),
+		.ex_wdata_i(ex_wdata_o),
+		//from mem
+		.mem_waddr_i(mem_waddr_o),
+		.mem_we_i(mem_we_o),
+		.mem_wdata_i(mem_wdata_o),
 		//to regfile
 		.re1_o(id_re1_o),
 		.re2_o(id_re2_o),

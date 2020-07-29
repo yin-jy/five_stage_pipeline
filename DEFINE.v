@@ -18,17 +18,43 @@
 
 /**具体指令宏定义**/
 //Opcode
-`define OPCODE_ANDI 6'h0C
-`define OPCODE_ORI 6'h0D
+`define OPCODE_NOP 6'h00
 `define OPCODE_J 6'h02
 `define OPCODE_JAL 6'h03
-`define OPCODE_NOP 6'h00
+`define OPCODE_BEQ 6'h04
+
+`define OPCODE_ANDI 6'h0C
+`define OPCODE_ORI 6'h0D
+`define OPCODE_XORI 6'h0E
+`define OPCODE_LUI 6'h0F
+`define OPCODE_SW 6'h2B
+//Funct
+`define FUNCT_SLL 6'h00
+`define FUNCT_SRL 6'h02
+`define FUNCT_SRA 6'h03
+`define FUNCT_SLLV 6'h04
+`define FUNCT_SRLV 6'h06
+`define FUNCT_SRAV 6'h07
+`define FUNCT_JR 6'h08
+
+`define FUNCT_AND 6'h24
+`define FUNCT_OR 6'h25
+`define FUNCT_XOR 6'h26
+`define FUNCT_NOR 6'h27
 //ALUOp
-`define ALUOP_OR 8'b0010_0101
 `define ALUOP_NOP 8'b0000_0000
+`define ALUOP_AND 8'b0010_0100
+`define ALUOP_OR 8'b0010_0101
+`define ALUOP_XOR 8'b0010_0110
+`define ALUOP_NOR 8'b0010_0111
+`define ALUOP_LUI 8'b0101_1100
+`define ALUOP_SLL 8'b0111_1100
+`define ALUOP_SRL 8'b0000_0010
+`define ALUOP_SRA 8'b0000_0011
 //ALUSel
-`define ALUSEL_LOGIC 3'b001
 `define ALUSEL_NOP 3'b000
+`define ALUSEL_LOGIC 3'b001
+`define ALUSEL_SHIFT 3'b010
 
 /**指令存储器ROM宏定义**/
 `define INST_ADDR_BUS 31:0
