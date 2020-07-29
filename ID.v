@@ -26,7 +26,9 @@ module ID(
     output wire [`REG_BUS] rdata1_o,
     output wire [`REG_BUS] rdata2_o,
     output wire [`REG_ADDR_BUS] waddr_o,
-    output wire we_o
+    output wire we_o,
+    //to ctrl
+    output wire stallreq_o
 );
 
     wire [5:0] opcode;
@@ -163,6 +165,9 @@ module ID(
                     (opcode==`OPCODE_NOP)?rd:rt;
     assign we_o=(rst==`RST_ENABLE)?`WR_DISABLE:
                 ((opcode==`OPCODE_J)||(opcode==`OPCODE_BEQ)||(opcode==`OPCODE_SW)||((opcode==`OPCODE_NOP)&&(funct==`FUNCT_JR)))?`WR_DISABLE:`WR_ENABLE;             
+
+    assign stallreq_o=`STALLREQ_DISABLE;
+
 /*
 	assign PCSrc = (opcode == 6'h03 || opcode == 6'h02)?2'b01:(opcode==6'h00&&(funct==6'h08||funct==6'h09))?2'b10:2'b00;
 	assign Branch = (opcode==6'h04)?1'b1:1'b0;

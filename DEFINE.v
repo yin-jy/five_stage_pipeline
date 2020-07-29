@@ -91,7 +91,17 @@
 /**执行模块EX宏定义**/
 `define OVERFLOW_ENABLE 1'b1
 `define OVERFLOW_DISABLE 1'b0
-/****/
+
+/**控制模块CTRL宏定义**/
+`define STALL_BUS 5:0
+`define STALLREQ_ENABLE 1'b1
+`define STALLREQ_DISABLE 1'b0
+`define NO_STALL 6'b000000
+`define ID_STALL 6'b001111
+`define EX_STALL 6'b000111
+`define STALL_ENABLE 1'b1
+`define STALL_DISABLE 1'b0
+
 /****/
 /****/
 /****/

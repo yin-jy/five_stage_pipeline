@@ -50,11 +50,18 @@ module CPU(
 	wire id_re2_o;
 	wire [`REG_ADDR_BUS] id_raddr1_o;
 	wire [`REG_ADDR_BUS] id_raddr2_o;
+	//connect pc/if_id/id_ex/ex_mem/mem_wb and ctrl
+	wire [`STALL_BUS] ctrl_stall_o;
+	//connect id and ctrl
+	wire id_stallreq_o;
+	//connect ex and ctrl
+	wire ex_stallreq_o;
 
 	//pc instantiation
 	PC PC0(
 		.clk(clk),
 		.rst(rst),
+		.ctrl_stall(ctrl_stall_o),
 		.pc(pc),
 		.ce(rom_ce_o)
 	);
@@ -65,6 +72,7 @@ module CPU(
 		.rst(rst),
 		.if_pc(pc),
 		.if_inst(rom_data_i),
+		.ctrl_stall(ctrl_stall_o),
 		.id_pc(id_pc_i),
 		.id_inst(id_inst_i)
 	);
@@ -95,7 +103,9 @@ module CPU(
 		.rdata1_o(id_rdata1_o),
 		.rdata2_o(id_rdata2_o),
 		.waddr_o(id_waddr_o),
-		.we_o(id_we_o)
+		.we_o(id_we_o),
+		//to ctrl
+		.stallreq_o(id_stallreq_o)
 	);
 	//registerfile instantiation
 	RegisterFile RegisterFile0(
@@ -125,6 +135,8 @@ module CPU(
 		.id_rdata2(id_rdata2_o),
 		.id_waddr(id_waddr_o),
 		.id_we(id_we_o),
+		//from ctrl
+		.ctrl_stall(ctrl_stall_o),
 		//to ex
 		.ex_aluop(ex_aluop_i),
 		.ex_alusel(ex_alusel_i),
@@ -146,7 +158,9 @@ module CPU(
 		//to ex_mem
 		.waddr_o(ex_waddr_o),
 		.we_o(ex_we_o),
-		.wdata_o(ex_wdata_o)
+		.wdata_o(ex_wdata_o),
+		//to ctrl
+		.stallreq_o(ex_stallreq_o)
 	);	
 	//ex_mem instantiation
 	EX_MEM EX_MEM0(
@@ -156,6 +170,8 @@ module CPU(
 		.ex_waddr(ex_waddr_o),
 		.ex_we(ex_we_o),
 		.ex_wdata(ex_wdata_o),
+		//from ctrl
+		.ctrl_stall(ctrl_stall_o),
 		//to mem
 		.mem_waddr(mem_waddr_i),
 		.mem_we(mem_we_i),
@@ -182,10 +198,19 @@ module CPU(
 		.mem_waddr(mem_waddr_o),
 		.mem_we(mem_we_o),
 		.mem_wdata(mem_wdata_o),
+		//from ctrl
+		.ctrl_stall(ctrl_stall_o),
 		//to wb
 		.wb_waddr(wb_waddr_i),
 		.wb_we(wb_we_i),
 		.wb_wdata(wb_wdata_i)
+	);
+	//ctrl instantiation
+	CTRL CTRL0(
+		.rst(rst),
+		.id_stallreq_i(id_stallreq_o),
+		.ex_stallreq_i(ex_stallreq_o),
+		.stall_o(ctrl_stall_o)
 	);
 
 endmodule

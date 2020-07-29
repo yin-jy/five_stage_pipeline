@@ -12,7 +12,9 @@ module EX(
     //to ex_mem
     output wire [`REG_ADDR_BUS] waddr_o,
     output wire we_o,
-    output wire [`REG_BUS] wdata_o
+    output wire [`REG_BUS] wdata_o,
+    //to ctrl
+    output wire stallreq_o
 );
 
     wire [`REG_BUS] rdata1_i_plus_rdata2_i;
@@ -52,4 +54,5 @@ module EX(
                     (alusel_i==`ALUSEL_SHIFT)?shiftout:
                     (alusel_i==`ALUSEL_ARITHMETIC)?arithmeticout:`ZERO_WORD;
 
+    assign stallreq_o=`STALLREQ_DISABLE;
 endmodule
