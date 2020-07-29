@@ -84,6 +84,18 @@ module ID(
                             `FUNCT_SRAV:begin
                                 aluop_o<=`ALUOP_SRA;alusel_o<=`ALUSEL_SHIFT;
                             end
+                            `FUNCT_ADD:begin
+                                aluop_o<=`ALUOP_ADD;alusel_o<=`ALUSEL_ARITHMETIC;
+                            end
+                            `FUNCT_ADDU:begin
+                                aluop_o<=`ALUOP_ADDU;alusel_o<=`ALUSEL_ARITHMETIC;
+                            end
+                            `FUNCT_SUB:begin
+                                aluop_o<=`ALUOP_SUB;alusel_o<=`ALUSEL_ARITHMETIC;
+                            end
+                            `FUNCT_SUBU:begin
+                                aluop_o<=`ALUOP_SUBU;alusel_o<=`ALUSEL_ARITHMETIC;
+                            end                            
                             `FUNCT_AND:begin
                                 aluop_o<=`ALUOP_AND;alusel_o<=`ALUSEL_LOGIC;
                             end
@@ -96,11 +108,30 @@ module ID(
                             `FUNCT_NOR:begin
                                 aluop_o<=`ALUOP_NOR;alusel_o<=`ALUSEL_LOGIC;
                             end
+                            `FUNCT_SLT:begin
+                                aluop_o<=`ALUOP_SLT;alusel_o<=`ALUSEL_ARITHMETIC;
+                            end
+                            `FUNCT_SLTU:begin
+                                aluop_o<=`ALUOP_SLTU;alusel_o<=`ALUSEL_ARITHMETIC;
+                            end
+
                         endcase
                     end else begin
                         aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;                       
                     end
                 end
+                `OPCODE_ADDI:begin
+                    aluop_o<=`ALUOP_ADD;alusel_o<=`ALUSEL_ARITHMETIC;
+                end
+                `OPCODE_ADDIU:begin
+                    aluop_o<=`ALUOP_ADDU;alusel_o<=`ALUSEL_ARITHMETIC;
+                end
+                `OPCODE_SLTI:begin
+                    aluop_o<=`ALUOP_SLT;alusel_o<=`ALUSEL_ARITHMETIC;
+                end
+                `OPCODE_SLTIU:begin
+                    aluop_o<=`ALUOP_SLTU;alusel_o<=`ALUSEL_ARITHMETIC;
+                end                                             
                 `OPCODE_ANDI:begin
                     aluop_o<=`ALUOP_AND;alusel_o<=`ALUSEL_LOGIC;
                 end

@@ -22,7 +22,10 @@
 `define OPCODE_J 6'h02
 `define OPCODE_JAL 6'h03
 `define OPCODE_BEQ 6'h04
-
+`define OPCODE_ADDI 6'h08
+`define OPCODE_ADDIU 6'h09
+`define OPCODE_SLTI 6'h0A
+`define OPCODE_SLTIU 6'h0B
 `define OPCODE_ANDI 6'h0C
 `define OPCODE_ORI 6'h0D
 `define OPCODE_XORI 6'h0E
@@ -36,11 +39,17 @@
 `define FUNCT_SRLV 6'h06
 `define FUNCT_SRAV 6'h07
 `define FUNCT_JR 6'h08
-
+`define FUNCT_ADD 6'h20
+`define FUNCT_ADDU 6'h21
+`define FUNCT_SUB 6'h22
+`define FUNCT_SUBU 6'h23
 `define FUNCT_AND 6'h24
 `define FUNCT_OR 6'h25
 `define FUNCT_XOR 6'h26
 `define FUNCT_NOR 6'h27
+`define FUNCT_SLT 6'h2A
+`define FUNCT_SLTU 6'h2B
+
 //ALUOp
 `define ALUOP_NOP 8'b0000_0000
 `define ALUOP_AND 8'b0010_0100
@@ -51,11 +60,18 @@
 `define ALUOP_SLL 8'b0111_1100
 `define ALUOP_SRL 8'b0000_0010
 `define ALUOP_SRA 8'b0000_0011
+
+`define ALUOP_SLT 8'b0010_1010
+`define ALUOP_SLTU 8'b0010_1011
+`define ALUOP_ADD 8'b0010_0000
+`define ALUOP_ADDU 8'b0010_0001
+`define ALUOP_SUB 8'b0010_0010
+`define ALUOP_SUBU 8'b0010_0011
 //ALUSel
 `define ALUSEL_NOP 3'b000
 `define ALUSEL_LOGIC 3'b001
 `define ALUSEL_SHIFT 3'b010
-
+`define ALUSEL_ARITHMETIC 3'b100
 /**指令存储器ROM宏定义**/
 `define INST_ADDR_BUS 31:0
 `define INST_BUS 31:0
@@ -72,7 +88,9 @@
 `define REG_NUM_LOG2 5
 `define NOP_REG_ADDR 5'b00000
 
-/****/
+/**执行模块EX宏定义**/
+`define OVERFLOW_ENABLE 1'b1
+`define OVERFLOW_DISABLE 1'b0
 /****/
 /****/
 /****/

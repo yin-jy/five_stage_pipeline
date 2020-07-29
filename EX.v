@@ -15,10 +15,21 @@ module EX(
     output wire [`REG_BUS] wdata_o
 );
 
+    wire [`REG_BUS] rdata1_i_plus_rdata2_i;
+    assign rdata1_i_plus_rdata2_i=rdata1_i+rdata2_i;
+
+    wire [`REG_BUS] rdata1_i_minus_rdata2_i;
+    assign rdata1_i_minus_rdata2_i=rdata1_i+~rdata2_i+32'h0000_0001;
+
+    wire overflow;
+    assign overflow=(aluop_i==`ALUOP_ADD)&&((rdata1_i[31]^~rdata2_i[31])&(rdata1_i[31]^rdata1_i_plus_rdata2_i[31]))?`OVERFLOW_ENABLE:
+                    (aluop_i==`ALUOP_SUB)&&((rdata1_i[31]^rdata2_i[31])&(rdata1_i[31]^rdata1_i_minus_rdata2_i[31]))?`OVERFLOW_ENABLE:`OVERFLOW_DISABLE;
+
     wire [`REG_BUS] logicout;
     wire [`REG_BUS] shiftout;
+    wire [`REG_BUS] arithmeticout;
     //calculate according to aluop
-    assign logicout=(rst==`RST_ENABLE)?`ZERO_WORD:
+    assign logicout=(rst==`RST_ENABLE)?`ZERO_WORD:  
                     (aluop_i==`ALUOP_AND)?rdata1_i&rdata2_i:
                     (aluop_i==`ALUOP_OR)?rdata1_i|rdata2_i:
                     (aluop_i==`ALUOP_XOR)?rdata1_i^rdata2_i:
@@ -27,11 +38,18 @@ module EX(
     assign shiftout=(rst==`RST_ENABLE)?`ZERO_WORD:
                     (aluop_i==`ALUOP_SLL)?rdata2_i<<rdata1_i[4:0]:
                     (aluop_i==`ALUOP_SRL)?rdata2_i>>rdata1_i[4:0]:
-                    (aluop_i==`ALUOP_SRA)?({32{rdata2_i[31]}}<<(6'd32-{1'b0,rdata1_i[4:0]}))|(rdata2_i>>rdata1_i[4:0]):`ZERO_WORD;    
+                    (aluop_i==`ALUOP_SRA)?({32{rdata2_i[31]}}<<(6'd32-{1'b0,rdata1_i[4:0]}))|(rdata2_i>>rdata1_i[4:0]):`ZERO_WORD;
+
+    assign arithmeticout=   (rst==`RST_ENABLE)?`ZERO_WORD:
+                            (aluop_i==`ALUOP_ADD)||(aluop_i==`ALUOP_ADDU)?rdata1_i_plus_rdata2_i:
+                            (aluop_i==`ALUOP_SUB)||(aluop_i==`ALUOP_SUBU)?rdata1_i_minus_rdata2_i:
+                            (aluop_i==`ALUOP_SLT)?{31'b0,(rdata1_i[31]&~rdata2_i[31])||((rdata1_i[31]^~rdata2_i[31])&rdata1_i_minus_rdata2_i[31])}:
+                            (aluop_i==`ALUOP_SLTU)?{31'b0,rdata1_i<rdata2_i}:`ZERO_WORD;
     //select final result according to alusel
     assign waddr_o=waddr_i;
-    assign we_o=we_i;
+    assign we_o=(overflow==`OVERFLOW_DISABLE)?we_i:`WR_DISABLE;
     assign wdata_o= (alusel_i==`ALUSEL_LOGIC)?logicout:
-                    (alusel_i==`ALUSEL_SHIFT)?shiftout:`ZERO_WORD;
+                    (alusel_i==`ALUSEL_SHIFT)?shiftout:
+                    (alusel_i==`ALUSEL_ARITHMETIC)?arithmeticout:`ZERO_WORD;
 
 endmodule
