@@ -16,7 +16,7 @@ module test_cpu();
 	initial begin
 		rst=`RST_ENABLE;
 		#100 rst=`RST_DISABLE;
-		#2000 $stop;
+		#6000 $stop;
 	end
 
 endmodule
