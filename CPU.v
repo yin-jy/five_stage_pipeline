@@ -20,6 +20,7 @@ module CPU(
     wire [`REG_BUS] id_rdata2_o;
     wire [`REG_ADDR_BUS] id_waddr_o;
 	wire id_we_o;
+	wire [`INST_ADDR_BUS] id_laddr_o;
 	//connect id_ex and ex
     wire [`ALUOP_BUS] ex_aluop_i;
     wire [`ALUSEL_BUS] ex_alusel_i;
@@ -27,6 +28,7 @@ module CPU(
     wire [`REG_BUS] ex_rdata2_i;
     wire [`REG_ADDR_BUS] ex_waddr_i;
     wire ex_we_i;
+	wire [`INST_ADDR_BUS] ex_laddr_i;
 	//connect ex and ex_mem
     wire [`REG_ADDR_BUS] ex_waddr_o;
     wire ex_we_o;
@@ -56,12 +58,17 @@ module CPU(
 	wire id_stallreq_o;
 	//connect ex and ctrl
 	wire ex_stallreq_o;
+	//connect id and pc
+	wire id_be_o;
+	wire [`INST_ADDR_BUS] id_baddr_o;
 
 	//pc instantiation
 	PC PC0(
 		.clk(clk),
 		.rst(rst),
 		.ctrl_stall(ctrl_stall_o),
+		.be(id_be_o),
+		.baddr(id_baddr_o),
 		.pc(pc),
 		.ce(rom_ce_o)
 	);
@@ -104,8 +111,12 @@ module CPU(
 		.rdata2_o(id_rdata2_o),
 		.waddr_o(id_waddr_o),
 		.we_o(id_we_o),
+		.laddr_o(id_laddr_o),
 		//to ctrl
-		.stallreq_o(id_stallreq_o)
+		.stallreq_o(id_stallreq_o),
+		//to pc
+		.be_o(id_be_o),
+		.baddr_o(id_baddr_o)
 	);
 	//registerfile instantiation
 	RegisterFile RegisterFile0(
@@ -135,6 +146,7 @@ module CPU(
 		.id_rdata2(id_rdata2_o),
 		.id_waddr(id_waddr_o),
 		.id_we(id_we_o),
+		.id_laddr(id_laddr_o),
 		//from ctrl
 		.ctrl_stall(ctrl_stall_o),
 		//to ex
@@ -143,7 +155,8 @@ module CPU(
 		.ex_rdata1(ex_rdata1_i),
 		.ex_rdata2(ex_rdata2_i),
 		.ex_waddr(ex_waddr_i),
-		.ex_we(ex_we_i)		
+		.ex_we(ex_we_i),
+		.ex_laddr(ex_laddr_i)
 	);
 	//ex instantiation
 	EX EX0(
@@ -155,6 +168,7 @@ module CPU(
 		.rdata2_i(ex_rdata2_i),
 		.waddr_i(ex_waddr_i),
 		.we_i(ex_we_i),
+		.laddr_i(ex_laddr_i),
 		//to ex_mem
 		.waddr_o(ex_waddr_o),
 		.we_o(ex_we_o),

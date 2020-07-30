@@ -22,6 +22,9 @@
 `define OPCODE_J 6'h02
 `define OPCODE_JAL 6'h03
 `define OPCODE_BEQ 6'h04
+`define OPCODE_BNE 6'h05
+`define OPCODE_BLEZ 6'h06
+`define OPCODE_BGTZ 6'h07
 `define OPCODE_ADDI 6'h08
 `define OPCODE_ADDIU 6'h09
 `define OPCODE_SLTI 6'h0A
@@ -39,6 +42,7 @@
 `define FUNCT_SRLV 6'h06
 `define FUNCT_SRAV 6'h07
 `define FUNCT_JR 6'h08
+`define FUNCT_JALR 6'h09
 `define FUNCT_ADD 6'h20
 `define FUNCT_ADDU 6'h21
 `define FUNCT_SUB 6'h22
@@ -72,6 +76,7 @@
 `define ALUSEL_LOGIC 3'b001
 `define ALUSEL_SHIFT 3'b010
 `define ALUSEL_ARITHMETIC 3'b100
+`define ALUSEL_LINK 3'b110
 /**指令存储器ROM宏定义**/
 `define INST_ADDR_BUS 31:0
 `define INST_BUS 31:0
@@ -97,12 +102,15 @@
 `define STALLREQ_ENABLE 1'b1
 `define STALLREQ_DISABLE 1'b0
 `define NO_STALL 6'b000000
-`define ID_STALL 6'b001111
-`define EX_STALL 6'b000111
+`define ID_STALL 6'b000010
+`define EX_STALL 6'b001111
 `define STALL_ENABLE 1'b1
 `define STALL_DISABLE 1'b0
 
-/****/
+/**译码模块ID宏定义**/
+`define BRANCH_ENABLE 1'b1
+`define BRANCH_DISABLE 1'b0
+
 /****/
 /****/
 /****/

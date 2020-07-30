@@ -9,6 +9,7 @@ module EX(
     input wire [`REG_BUS] rdata2_i,
     input wire [`REG_ADDR_BUS] waddr_i,
     input wire we_i,
+    input wire [`INST_ADDR_BUS] laddr_i,
     //to ex_mem
     output wire [`REG_ADDR_BUS] waddr_o,
     output wire we_o,
@@ -52,7 +53,8 @@ module EX(
     assign we_o=(overflow==`OVERFLOW_DISABLE)?we_i:`WR_DISABLE;
     assign wdata_o= (alusel_i==`ALUSEL_LOGIC)?logicout:
                     (alusel_i==`ALUSEL_SHIFT)?shiftout:
-                    (alusel_i==`ALUSEL_ARITHMETIC)?arithmeticout:`ZERO_WORD;
+                    (alusel_i==`ALUSEL_ARITHMETIC)?arithmeticout:
+                    (alusel_i==`ALUSEL_LINK)?laddr_i:`ZERO_WORD;
 
     assign stallreq_o=`STALLREQ_DISABLE;
 endmodule
