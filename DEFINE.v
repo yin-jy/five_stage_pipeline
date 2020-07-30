@@ -33,6 +33,7 @@
 `define OPCODE_ORI 6'h0D
 `define OPCODE_XORI 6'h0E
 `define OPCODE_LUI 6'h0F
+`define OPCODE_LW 6'h23
 `define OPCODE_SW 6'h2B
 //Funct
 `define FUNCT_SLL 6'h00
@@ -81,8 +82,6 @@
 `define INST_ADDR_BUS 31:0
 `define INST_BUS 31:0
 
-
-
 /**通用寄存器RF宏定义**/
 `define REG_ADDR_BUS 4:0
 `define REG_BUS 31:0
@@ -92,6 +91,7 @@
 `define REG_NUM 32
 `define REG_NUM_LOG2 5
 `define NOP_REG_ADDR 5'b00000
+`define RA_REG_ADDR 5'b11111
 
 /**执行模块EX宏定义**/
 `define OVERFLOW_ENABLE 1'b1
@@ -102,7 +102,8 @@
 `define STALLREQ_ENABLE 1'b1
 `define STALLREQ_DISABLE 1'b0
 `define NO_STALL 6'b000000
-`define ID_STALL 6'b000010
+`define JB_STALL 6'b000010
+`define LW_STALL 6'b000111
 `define EX_STALL 6'b001111
 `define STALL_ENABLE 1'b1
 `define STALL_DISABLE 1'b0
@@ -111,7 +112,12 @@
 `define BRANCH_ENABLE 1'b1
 `define BRANCH_DISABLE 1'b0
 
-/****/
-/****/
+/**访存模块MEM宏定义**/
+`define MEM_ADDR_BUS 31:0
+`define MEM_BUS 31:0
+
+/**随机存储器RAM宏定义**/
+`define RAM_WORDS 512
+
 /****/
 /****/

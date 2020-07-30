@@ -11,6 +11,7 @@ module ID(
     input wire [`REG_ADDR_BUS] ex_waddr_i,
     input wire ex_we_i,
     input wire [`REG_BUS] ex_wdata_i,
+    input wire ex_mre_i,
     //from mem
     input wire [`REG_ADDR_BUS] mem_waddr_i,
     input wire mem_we_i,
@@ -28,8 +29,12 @@ module ID(
     output wire [`REG_ADDR_BUS] waddr_o,
     output wire we_o,
     output wire [`INST_ADDR_BUS] laddr_o,
+    output wire mre_o,
+    output wire mwe_o,
+    output wire [`MEM_BUS] mwdata_o,
     //to ctrl
-    output wire stallreq_o,
+    output wire jbstallreq_o,
+    output wire lwstallreq_o,
     //to pc
     output wire be_o,
     output wire [`INST_ADDR_BUS] baddr_o
@@ -63,7 +68,7 @@ module ID(
                     ((opcode==`OPCODE_J)||(opcode==`OPCODE_JAL)||
                     ((opcode==`OPCODE_NOP)&&((funct==`FUNCT_SLL)||(funct==`FUNCT_SRL)||(funct==`FUNCT_SRA))))?`RD_DISABLE:`RD_ENABLE;
     assign re2_o=   (rst==`RST_ENABLE)?`RD_DISABLE:
-                    (opcode==`OPCODE_NOP)||(opcode==`OPCODE_BEQ)||(opcode==`OPCODE_BNE)?`RD_ENABLE:`RD_DISABLE;
+                    (opcode==`OPCODE_NOP)||(opcode==`OPCODE_BEQ)||(opcode==`OPCODE_BNE)||(opcode==`OPCODE_SW)?`RD_ENABLE:`RD_DISABLE;
     assign raddr1_o=(rst==`RST_ENABLE)?`NOP_REG_ADDR:rs;
     assign raddr2_o=(rst==`RST_ENABLE)?`NOP_REG_ADDR:rt;
     //to id_ex
@@ -177,6 +182,12 @@ module ID(
                 `OPCODE_LUI:begin
                     aluop_o<=`ALUOP_OR;alusel_o<=`ALUSEL_LOGIC;
                 end
+                `OPCODE_LW:begin
+                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;
+                end
+                `OPCODE_SW:begin
+                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;
+                end              
                 default:begin
                     aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;
                 end
@@ -185,48 +196,50 @@ module ID(
     end
 
     assign rdata1_o=(rst==`RST_ENABLE)?`ZERO_WORD:
-                    ((re1_o==`RD_ENABLE)&&(ex_we_i==`WR_ENABLE)&&(ex_waddr_i==raddr1_o))?ex_wdata_i:
+                    ((re1_o==`RD_ENABLE)&&(ex_we_i==`WR_ENABLE)&&(ex_waddr_i==raddr1_o)&&(ex_mre_i==`RD_DISABLE))?ex_wdata_i:
                     ((re1_o==`RD_ENABLE)&&(mem_we_i==`WR_ENABLE)&&(mem_waddr_i==raddr1_o))?mem_wdata_i:
                     (re1_o==`RD_ENABLE)?rdata1_i:{27'b0,shamt};//for shamt in shift-type
     assign rdata2_o=(rst==`RST_ENABLE)?`ZERO_WORD:
-                    ((re2_o==`RD_ENABLE)&&(ex_we_i==`WR_ENABLE)&&(ex_waddr_i==raddr2_o))?ex_wdata_i:
+                    (opcode==`OPCODE_SW)?immext:
+                    ((re2_o==`RD_ENABLE)&&(ex_we_i==`WR_ENABLE)&&(ex_waddr_i==raddr2_o)&&(ex_mre_i==`RD_DISABLE))?ex_wdata_i:
                     ((re2_o==`RD_ENABLE)&&(mem_we_i==`WR_ENABLE)&&(mem_waddr_i==raddr2_o))?mem_wdata_i:
                     (re2_o==`RD_ENABLE)?rdata2_i:immext;//for immext in I-type
     assign waddr_o= (rst==`RST_ENABLE)?`NOP_REG_ADDR:
-                    (opcode==`OPCODE_JAL)?5'b11111://for $ra=$31
-                    (opcode==`OPCODE_NOP)?rd:rt;//include the situation of jalr
+                    (opcode==`OPCODE_JAL)?`RA_REG_ADDR:
+                    (opcode==`OPCODE_SW)?`NOP_REG_ADDR:
+                    (opcode==`OPCODE_NOP)?rd:rt;//include the situation of jalr and lw
     assign we_o=(rst==`RST_ENABLE)?`WR_DISABLE:
                 ((opcode==`OPCODE_J)||(opcode==`OPCODE_BEQ)||
                 (opcode==`OPCODE_BNE)||(opcode==`OPCODE_BLEZ)||
                 (opcode==`OPCODE_BGTZ)||(opcode==`OPCODE_SW)||
                 ((opcode==`OPCODE_NOP)&&(funct==`FUNCT_JR)))?`WR_DISABLE:`WR_ENABLE;
-    assign laddr_o=(opcode==`OPCODE_JAL)||((opcode==`OPCODE_NOP)&&(funct==`FUNCT_JALR))?pc_plus_4:`ZERO_WORD;
-
-    assign stallreq_o=  (opcode==`OPCODE_J)||(opcode==`OPCODE_JAL)||
+    assign laddr_o= (rst==`RST_ENABLE)?`ZERO_WORD:
+                    (opcode==`OPCODE_JAL)||((opcode==`OPCODE_NOP)&&(funct==`FUNCT_JALR))?pc_plus_4:`ZERO_WORD;
+    assign mre_o=   (rst==`RST_ENABLE)?`RD_DISABLE:
+                    (opcode==`OPCODE_LW)?`RD_ENABLE:`RD_DISABLE;
+    assign mwe_o=   (rst==`RST_ENABLE)?`WR_DISABLE:
+                    (opcode==`OPCODE_SW)?`WR_ENABLE:`WR_DISABLE;
+    assign mwdata_o=(rst==`RST_ENABLE)?`ZERO_WORD:
+                    (opcode!=`OPCODE_SW)?`ZERO_WORD:
+                    ((ex_we_i==`WR_ENABLE)&&(ex_waddr_i==raddr2_o))?ex_wdata_i:
+                    ((mem_we_i==`WR_ENABLE)&&(mem_waddr_i==raddr2_o))?mem_wdata_i:rdata2_i;
+    assign jbstallreq_o=(rst==`RST_ENABLE)?`STALLREQ_DISABLE:
+                        (opcode==`OPCODE_J)||(opcode==`OPCODE_JAL)||
                         (opcode==`OPCODE_BEQ)||(opcode==`OPCODE_BNE)||
                         (opcode==`OPCODE_BLEZ)||(opcode==`OPCODE_BGTZ)||
                         (opcode==`OPCODE_NOP)&&((funct==`FUNCT_JR)||(funct==`FUNCT_JALR))?`STALLREQ_ENABLE:`STALLREQ_DISABLE;
+    assign lwstallreq_o=(ex_we_i==`WR_ENABLE)&&(ex_mre_i==`RD_ENABLE)&&
+                        (((re1_o==`RD_ENABLE)&&(ex_waddr_i==raddr1_o))||((re2_o==`RD_ENABLE)&&(ex_waddr_i==raddr2_o)))?`STALLREQ_ENABLE:`STALLREQ_DISABLE;
 
-    assign be_o=(opcode==`OPCODE_J)||(opcode==`OPCODE_JAL)||((opcode==`OPCODE_NOP)&&((funct==`FUNCT_JR)||(funct==`FUNCT_JALR)))?`BRANCH_ENABLE:
+    assign be_o=(rst==`RST_ENABLE)?`BRANCH_DISABLE:
+                (opcode==`OPCODE_J)||(opcode==`OPCODE_JAL)||((opcode==`OPCODE_NOP)&&((funct==`FUNCT_JR)||(funct==`FUNCT_JALR)))?`BRANCH_ENABLE:
                 (opcode==`OPCODE_BEQ)&&(rdata1_o==rdata2_o)?`BRANCH_ENABLE:
                 (opcode==`OPCODE_BNE)&&(rdata1_o!=rdata2_o)?`BRANCH_ENABLE:
                 (opcode==`OPCODE_BLEZ)&&(rdata1_o[31]==1'b1||rdata1_o==`ZERO_WORD)?`BRANCH_ENABLE:
                 (opcode==`OPCODE_BGTZ)&&(rdata1_o[31]==1'b0&&rdata1_o!=`ZERO_WORD)?`BRANCH_ENABLE:`BRANCH_DISABLE;
-    assign baddr_o= (opcode==`OPCODE_J)||(opcode==`OPCODE_JAL)?{pc_plus_4[31:28],target,2'b00}:
+    assign baddr_o= (rst==`RST_ENABLE)?`ZERO_WORD:
+                    (opcode==`OPCODE_J)||(opcode==`OPCODE_JAL)?{pc_plus_4[31:28],target,2'b00}:
                     (opcode==`OPCODE_NOP)&&((funct==`FUNCT_JR)||(funct==`FUNCT_JALR))?rdata1_o:
                     (opcode==`OPCODE_BEQ)||(opcode==`OPCODE_BNE)||(opcode==`OPCODE_BLEZ)||(opcode==`OPCODE_BGTZ)?pc_plus_4+(immext<<2'd2):`ZERO_WORD;
 
-
-/*
-	assign PCSrc = (opcode == 6'h03 || opcode == 6'h02)?2'b01:(opcode==6'h00&&(funct==6'h08||funct==6'h09))?2'b10:2'b00;
-	assign Branch = (opcode==6'h04)?1'b1:1'b0;
-	assign RegWrite = (opcode==6'h2b||opcode==6'h04||opcode==6'h02||opcode==6'h00&&funct==6'h08)?1'b0:1'b1;
-	assign RegDst = (opcode==6'h00)?2'b01:(opcode==6'h03)?2'b10:2'b00;
-	assign MemRead = (opcode==6'h23)?1'b1:1'b0;
-	assign MemWrite = (opcode==6'h2b)?1'b1:1'b0;
-	assign MemtoReg = (opcode==6'h23)?2'b01:(opcode==6'h03||opcode==6'h00&&funct==6'h09)?2'b10:2'b00;
-	assign ALUSrc1 = (opcode==6'h00&&(funct==6'h00||funct==6'h02||funct==6'h03))?1'b1:1'b0;
-	assign ALUSrc2 = (opcode==6'h00||opcode==6'h04)?1'b0:1'b1;
-	assign LuOp = (opcode == 6'h0f)?1'b1:1'b0;
-*/  
 endmodule

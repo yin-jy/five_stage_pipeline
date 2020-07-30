@@ -1,22 +1,27 @@
 
-module DataMemory(rst, clk, Address, Write_Data, Read_Data, DataMemory_Read, DataMemory_Write);
-	input rst, clk;
-	input [31:0] Address, Write_Data;
-	input DataMemory_Read, DataMemory_Write;
-	output [31:0] Read_Data;
+`include "DEFINE.v"
+module DataMemory(
+	input wire rst,
+	input wire clk,
+
+	input wire ram_cre_i,
+	input wire ram_cwe_i,
+	input wire [`MEM_ADDR_BUS] ram_addr_i,
+	input wire [`MEM_BUS] ram_wdata_i,
+	output wire [`MEM_BUS] ram_rdata_o
+);
 	
-	parameter RAM_SIZE = 1024;
-	parameter RAM_SIZE_BIT = 8;
-	
-	reg [31:0] RAM_data[RAM_SIZE - 1: 0];
-	assign Read_Data = DataMemory_Read? RAM_data[Address[RAM_SIZE_BIT + 1:2]]: 32'h00000000;
+	reg [`MEM_BUS] RAM_data [`RAM_WORDS-1:0];
+	assign ram_rdata_o=	(rst==`RST_ENABLE)?`ZERO_WORD:
+						(ram_cre_i==`RD_ENABLE)?RAM_data[ram_addr_i[10:2]]:`ZERO_WORD;
 	
 	integer i;
-	always @(posedge rst or posedge clk)
-		if (rst)
-			for (i = 0; i < RAM_SIZE; i = i + 1)
-				RAM_data[i] <= 32'h00000000;
-		else if (DataMemory_Write)
-			RAM_data[Address[RAM_SIZE_BIT + 1:2]] <= Write_Data;
+	always @(posedge clk)
+		if(rst==`RST_ENABLE)
+			for (i=0;i<`RAM_WORDS;i=i+1)
+				RAM_data[i]<=`ZERO_WORD;
+		else if(ram_cwe_i==`WR_ENABLE)
+			RAM_data[ram_addr_i[10:2]]<=ram_wdata_i;
+		else ;
 			
 endmodule

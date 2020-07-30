@@ -10,10 +10,17 @@ module EX(
     input wire [`REG_ADDR_BUS] waddr_i,
     input wire we_i,
     input wire [`INST_ADDR_BUS] laddr_i,
+    input wire mre_i,
+    input wire mwe_i,
+    input wire [`MEM_BUS] mwdata_i,
     //to ex_mem
     output wire [`REG_ADDR_BUS] waddr_o,
     output wire we_o,
     output wire [`REG_BUS] wdata_o,
+    output wire mre_o,
+    output wire mwe_o,
+    output wire [`MEM_BUS] mwdata_o,
+    output wire [`MEM_ADDR_BUS] maddr_o,
     //to ctrl
     output wire stallreq_o
 );
@@ -49,12 +56,19 @@ module EX(
                             (aluop_i==`ALUOP_SLT)?{31'b0,(rdata1_i[31]&~rdata2_i[31])||((rdata1_i[31]^~rdata2_i[31])&rdata1_i_minus_rdata2_i[31])}:
                             (aluop_i==`ALUOP_SLTU)?{31'b0,rdata1_i<rdata2_i}:`ZERO_WORD;
     //select final result according to alusel
-    assign waddr_o=waddr_i;
+    assign waddr_o=(rst==`RST_ENABLE)?`NOP_REG_ADDR:waddr_i;
     assign we_o=(overflow==`OVERFLOW_DISABLE)?we_i:`WR_DISABLE;
     assign wdata_o= (alusel_i==`ALUSEL_LOGIC)?logicout:
                     (alusel_i==`ALUSEL_SHIFT)?shiftout:
                     (alusel_i==`ALUSEL_ARITHMETIC)?arithmeticout:
                     (alusel_i==`ALUSEL_LINK)?laddr_i:`ZERO_WORD;
+    assign mre_o=   (rst==`RST_ENABLE)?`RD_DISABLE:
+                    (mre_i^mwe_i)?mre_i:`RD_DISABLE;
+    assign mwe_o=   (rst==`RST_ENABLE)?`WR_DISABLE:
+                    (mre_i^mwe_i)?mwe_i:`WR_DISABLE;
+    assign mwdata_o=(rst==`RST_ENABLE)?`ZERO_WORD:mwdata_i;
+    assign maddr_o= (rst==`RST_ENABLE)?`ZERO_WORD:
+                    (mre_i^mwe_i)?rdata1_i_plus_rdata2_i:`ZERO_WORD;
 
     assign stallreq_o=`STALLREQ_DISABLE;
 endmodule

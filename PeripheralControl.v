@@ -1,12 +1,15 @@
 
-module PeripheralControl(reset, clk, Address, Write_Data, Read_Data, PeripheralControl_Read, PeripheralControl_Write);
-	input reset, clk;
-	input [31:0] Address, Write_Data;
-	input PeripheralControl_Read, PeripheralControl_Write;
-	output reg [31:0] Read_Data;
-	
-    parameter RAM_SIZE = 16;
-    parameter RAM_SIZE_BIT = 8;
+`include "DEFINE.v"
+module PeripheralControl(
+    input wire rst,
+    input wire clk,
+    
+    input wire peri_cre_i,
+    input wire peri_cwe_i,
+    input wire [`MEM_ADDR_BUS] peri_addr_i,
+    input wire [`MEM_BUS] peri_wdata_i,
+    output wire [`MEM_BUS] peri_rdata_o
+);
 
 	reg [31:0] TH;
     reg [31:0] TL;
@@ -18,51 +21,26 @@ module PeripheralControl(reset, clk, Address, Write_Data, Read_Data, PeripheralC
     
     reg [31:0] SYSTICK;
 
-    always @(*) begin
-        if(PeripheralControl_Read)
-            case (Address)
-                32'h4000_0000: Read_Data=TH;
-                32'h4000_0004: Read_Data=TL;
-                32'h4000_0008: Read_Data={29'b0,TCON};
-                32'h4000_000C: Read_Data={24'b0,LED};
-                32'h4000_0010: Read_Data={20'b0,DIGITAL};
-                32'h4000_0014: Read_Data=SYSTICK;
-                default: Read_Data=32'h0000_0000;
-            endcase
-    end
+    assign peri_rdata_o=(rst==`RST_ENABLE)?`ZERO_WORD:
+                        (peri_cre_i==`RD_DISABLE)?`ZERO_WORD:
+                        (peri_addr_i==32'h4000_0000)?TH:
+                        (peri_addr_i==32'h4000_0004)?TL:
+                        (peri_addr_i==32'h4000_0008)?{29'b0,TCON}:
+                        (peri_addr_i==32'h4000_000C)?{24'b0,LED}:
+                        (peri_addr_i==32'h4000_0010)?{20'b0,DIGITAL}:
+                        (peri_addr_i==32'h4000_0014)?SYSTICK:`ZERO_WORD;
 	
     integer i;
-	always @(posedge reset or posedge clk) begin
-		if (reset)
-            SYSTICK<=32'h0000_0000;
-		else begin
+	always @(posedge clk) begin
+		if (rst==`RST_ENABLE) begin
+            TH<=`ZERO_WORD;
+            TL<=`ZERO_WORD;
+            TCON<=3'b000;
+            LED<=8'b0000_0000;
+            DIGITAL<=12'b0000_0000_0000;
+            SYSTICK<=`ZERO_WORD;
+        end else begin
             SYSTICK<=SYSTICK+32'h0000_0001;
-            if (TCON[0]) begin
-                if (PeripheralControl_Write)
-                    case(Address)
-                        32'h4000_0008: TCON<=Write_Data[2:0];
-                        32'h4000_000C: LED<=Write_Data[7:0];
-                        32'h4000_0010: DIGITAL<=Write_Data[11:0];
-                        default: ;
-                    endcase
-                if (TL==32'hFFFF_FFFF) begin
-                    TL<=TH;
-                    if(TCON[1]) TCON[2]<=1'b1;
-                end
-                else
-                    TL<=TL+32'h0000_0001;
-            end
-            else begin
-                if (PeripheralControl_Write)
-                    case(Address)
-                        32'h4000_0000: TH<=Write_Data;
-                        32'h4000_0004: TL<=Write_Data;
-                        32'h4000_0008: TCON<=Write_Data[2:0];
-                        32'h4000_000C: LED<=Write_Data[7:0];
-                        32'h4000_0010: DIGITAL<=Write_Data[11:0];
-                        default: ;
-                    endcase                
-            end
         end
     end
 
