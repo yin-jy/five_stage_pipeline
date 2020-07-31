@@ -10,7 +10,7 @@ module CTRL(
 
     assign stall_o= (rst==`RST_ENABLE)?`NO_STALL:
                     (ex_stallreq_i==`STALLREQ_ENABLE)?`EX_STALL:
-                    (id_jbstallreq_i==`STALLREQ_ENABLE)?`JB_STALL:
-                    (id_lwstallreq_i==`STALLREQ_ENABLE)?`LW_STALL:`NO_STALL;
+                    (id_lwstallreq_i==`STALLREQ_ENABLE)?`LW_STALL:
+                    (id_jbstallreq_i==`STALLREQ_ENABLE)?`JB_STALL:`NO_STALL;
 
 endmodule

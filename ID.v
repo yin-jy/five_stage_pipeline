@@ -221,7 +221,7 @@ module ID(
                     (opcode==`OPCODE_SW)?`WR_ENABLE:`WR_DISABLE;
     assign mwdata_o=(rst==`RST_ENABLE)?`ZERO_WORD:
                     (opcode!=`OPCODE_SW)?`ZERO_WORD:
-                    ((ex_we_i==`WR_ENABLE)&&(ex_waddr_i==raddr2_o))?ex_wdata_i:
+                    ((ex_we_i==`WR_ENABLE)&&(ex_waddr_i==raddr2_o)&&(ex_mre_i==`RD_DISABLE))?ex_wdata_i:
                     ((mem_we_i==`WR_ENABLE)&&(mem_waddr_i==raddr2_o))?mem_wdata_i:rdata2_i;
     assign jbstallreq_o=(rst==`RST_ENABLE)?`STALLREQ_DISABLE:
                         (opcode==`OPCODE_J)||(opcode==`OPCODE_JAL)||
