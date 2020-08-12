@@ -20,8 +20,8 @@ module CPU(
 	output wire [`MEM_BUS] ram_peri_wdata_o
 );
 
-	//connect if_id and id
 	wire [`INST_ADDR_BUS] pc;
+	//connect if_id and id
 	wire [`INST_ADDR_BUS] id_pc_i;
 	wire [`INST_BUS] id_inst_i;
     //connect id and id_ex
@@ -98,7 +98,7 @@ module CPU(
 		.pc(pc),
 		.ce(rom_ce_o)
 	);
-	assign rom_addr_o=pc;
+	assign rom_addr_o={1'b0,pc[30:0]};
 	//if_id instantiation
 	IF_ID IF_ID0(
 		.clk(clk),
@@ -112,6 +112,7 @@ module CPU(
 	//id instantiation
 	ID ID0(
 		.rst(rst),
+		//from if
 		.pc_i(id_pc_i),
 		.inst_i(id_inst_i),
 		//from regfile
