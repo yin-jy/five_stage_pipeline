@@ -35,11 +35,23 @@ module PeripheralControl(
 		if (rst==`RST_ENABLE) begin
             TH<=`ZERO_WORD;
             TL<=`ZERO_WORD;
-            TCON<=3'b000;
+            TCON<={`TIMER_CNT_STATUS,`INT_DISABLE,`TIMER_DISABLE};
             LED<=8'b0000_0000;
             DIGITAL<=12'b0000_0000_0000;
             SYSTICK<=`ZERO_WORD;
         end else begin
+            TH<=(peri_cwe_i==`WR_ENABLE)&&(peri_addr_i==32'h4000_0000)?peri_wdata_i:TH;
+            TL<=(peri_cwe_i==`WR_ENABLE)&&(peri_addr_i==32'h4000_0004)?peri_wdata_i:
+                (TCON[0]==`TIMER_DISABLE)?TL:
+                (TL==`TL_FULL_WORD)?TH:TL+32'h0000_0001;
+            TCON[2]<=   (peri_cwe_i==`WR_ENABLE)&&(peri_addr_i==32'h4000_0008)?peri_wdata_i[2]:   
+                        (TCON[0]==`TIMER_DISABLE)?TCON[2]:
+                        (TL!=`TL_FULL_WORD)?TCON[2]:
+                        (TCON[1]==`INT_DISABLE)?TCON[2]:`TIMER_INT_STATUS;
+            TCON[1]<=(peri_cwe_i==`WR_ENABLE)&&(peri_addr_i==32'h4000_0008)?peri_wdata_i[1]:TCON[1];
+            TCON[0]<=(peri_cwe_i==`WR_ENABLE)&&(peri_addr_i==32'h4000_0008)?peri_wdata_i[0]:TCON[0];
+            LED<=(peri_cwe_i==`WR_ENABLE)&&(peri_addr_i==32'h4000_000C)?peri_wdata_i[7:0]:LED;
+            DIGITAL<=(peri_cwe_i==`WR_ENABLE)&&(peri_addr_i==32'h4000_0010)?peri_wdata_i[11:0]:DIGITAL;
             SYSTICK<=SYSTICK+32'h0000_0001;
         end
     end

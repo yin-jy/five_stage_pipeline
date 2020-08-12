@@ -16,10 +16,10 @@ module PC(
     end
 
     always @(posedge clk) begin
-        if(ce==`CHIP_DISABLE) pc<=`ZERO_WORD;
+        if(ce==`CHIP_DISABLE) pc<=`PC_RST_WORD;
         else if (ctrl_stall[0]==`STALL_DISABLE) begin
             if(be==`BRANCH_ENABLE) pc<=baddr;
-            else pc<=pc+32'h0000_0004;
+            else pc<={pc[31],(pc[30:0]+31'h0000_0004)};
         end else ;
     end
 

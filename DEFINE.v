@@ -54,7 +54,6 @@
 `define FUNCT_NOR 6'h27
 `define FUNCT_SLT 6'h2A
 `define FUNCT_SLTU 6'h2B
-
 //ALUOp
 `define ALUOP_NOP 8'b0000_0000
 `define ALUOP_AND 8'b0010_0100
@@ -78,11 +77,12 @@
 `define ALUSEL_SHIFT 3'b010
 `define ALUSEL_ARITHMETIC 3'b100
 `define ALUSEL_LINK 3'b110
+
 /**指令存储器ROM宏定义**/
 `define INST_ADDR_BUS 31:0
 `define INST_BUS 31:0
 
-/**通用寄存器RF宏定义**/
+/**通用寄存器RegisterFile宏定义**/
 `define REG_ADDR_BUS 4:0
 `define REG_BUS 31:0
 `define REG_WIDTH 32
@@ -119,5 +119,16 @@
 /**随机存储器RAM宏定义**/
 `define RAM_WORDS 512
 
-/****/
-/****/
+/**程序计数器PC宏定义**/
+`define PC_RST_WORD 32'h8000_0000
+`define PC_INT_WORD 32'h8000_0004
+`define PC_EXC_WORD 32'h8000_0008
+
+/**外设控制器PeripheralControl宏定义**/
+`define TL_FULL_WORD 32'hffff_ffff
+`define TIMER_ENABLE 1'b1
+`define TIMER_DISABLE 1'b0
+`define INT_ENABLE 1'b1
+`define INT_DISABLE 1'b0
+`define TIMER_INT_STATUS 1'b1
+`define TIMER_CNT_STATUS 1'b0

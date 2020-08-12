@@ -62,7 +62,7 @@ module ID(
                     (opcode==`OPCODE_LUI)?{imm,16'h0000}:{{16{imm[15]}},imm};
 
     assign target=inst_i[25:0];
-    assign pc_plus_4=pc_i+32'h0000_0004;
+    assign pc_plus_4={pc_i[31],(pc_i[30:0]+31'h0000_0004)};
     //to regfile
     assign re1_o=   (rst==`RST_ENABLE)?`RD_DISABLE:
                     ((opcode==`OPCODE_J)||(opcode==`OPCODE_JAL)||
