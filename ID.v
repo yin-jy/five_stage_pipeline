@@ -37,7 +37,9 @@ module ID(
     output wire lwstallreq_o,
     //to pc
     output wire be_o,
-    output wire [`INST_ADDR_BUS] baddr_o
+    output wire [`INST_ADDR_BUS] baddr_o,
+    //to cpu
+    output reg excreq_o
 );
 
     wire [5:0] opcode;
@@ -81,115 +83,117 @@ module ID(
                     if(rs==5'b00000||shamt==5'b00000) begin
                         case(funct)
                             `FUNCT_SLL:begin
-                                aluop_o<=`ALUOP_SLL;alusel_o<=`ALUSEL_SHIFT;
+                                aluop_o<=`ALUOP_SLL;alusel_o<=`ALUSEL_SHIFT;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_SRL:begin
-                                aluop_o<=`ALUOP_SRL;alusel_o<=`ALUSEL_SHIFT;
+                                aluop_o<=`ALUOP_SRL;alusel_o<=`ALUSEL_SHIFT;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_SRA:begin
-                                aluop_o<=`ALUOP_SRA;alusel_o<=`ALUSEL_SHIFT;
+                                aluop_o<=`ALUOP_SRA;alusel_o<=`ALUSEL_SHIFT;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_SLLV:begin
-                                aluop_o<=`ALUOP_SLL;alusel_o<=`ALUSEL_SHIFT;
+                                aluop_o<=`ALUOP_SLL;alusel_o<=`ALUSEL_SHIFT;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_SRLV:begin
-                                aluop_o<=`ALUOP_SRL;alusel_o<=`ALUSEL_SHIFT;
+                                aluop_o<=`ALUOP_SRL;alusel_o<=`ALUSEL_SHIFT;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_SRAV:begin
-                                aluop_o<=`ALUOP_SRA;alusel_o<=`ALUSEL_SHIFT;
+                                aluop_o<=`ALUOP_SRA;alusel_o<=`ALUSEL_SHIFT;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_JR:begin
-                                aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;
+                                aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_JALR:begin
-                                aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_LINK;
+                                aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_LINK;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_ADD:begin
-                                aluop_o<=`ALUOP_ADD;alusel_o<=`ALUSEL_ARITHMETIC;
+                                aluop_o<=`ALUOP_ADD;alusel_o<=`ALUSEL_ARITHMETIC;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_ADDU:begin
-                                aluop_o<=`ALUOP_ADDU;alusel_o<=`ALUSEL_ARITHMETIC;
+                                aluop_o<=`ALUOP_ADDU;alusel_o<=`ALUSEL_ARITHMETIC;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_SUB:begin
-                                aluop_o<=`ALUOP_SUB;alusel_o<=`ALUSEL_ARITHMETIC;
+                                aluop_o<=`ALUOP_SUB;alusel_o<=`ALUSEL_ARITHMETIC;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_SUBU:begin
-                                aluop_o<=`ALUOP_SUBU;alusel_o<=`ALUSEL_ARITHMETIC;
+                                aluop_o<=`ALUOP_SUBU;alusel_o<=`ALUSEL_ARITHMETIC;excreq_o<=`INST_VALID;
                             end                            
                             `FUNCT_AND:begin
-                                aluop_o<=`ALUOP_AND;alusel_o<=`ALUSEL_LOGIC;
+                                aluop_o<=`ALUOP_AND;alusel_o<=`ALUSEL_LOGIC;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_OR:begin
-                                aluop_o<=`ALUOP_OR;alusel_o<=`ALUSEL_LOGIC;
+                                aluop_o<=`ALUOP_OR;alusel_o<=`ALUSEL_LOGIC;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_XOR:begin
-                                aluop_o<=`ALUOP_XOR;alusel_o<=`ALUSEL_LOGIC;
+                                aluop_o<=`ALUOP_XOR;alusel_o<=`ALUSEL_LOGIC;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_NOR:begin
-                                aluop_o<=`ALUOP_NOR;alusel_o<=`ALUSEL_LOGIC;
+                                aluop_o<=`ALUOP_NOR;alusel_o<=`ALUSEL_LOGIC;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_SLT:begin
-                                aluop_o<=`ALUOP_SLT;alusel_o<=`ALUSEL_ARITHMETIC;
+                                aluop_o<=`ALUOP_SLT;alusel_o<=`ALUSEL_ARITHMETIC;excreq_o<=`INST_VALID;
                             end
                             `FUNCT_SLTU:begin
-                                aluop_o<=`ALUOP_SLTU;alusel_o<=`ALUSEL_ARITHMETIC;
+                                aluop_o<=`ALUOP_SLTU;alusel_o<=`ALUSEL_ARITHMETIC;excreq_o<=`INST_VALID;
                             end
-
+                            default:begin
+                                aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;excreq_o<=`INST_INVALID;
+                            end
                         endcase
                     end else begin
-                        aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;                       
+                        aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;excreq_o<=`INST_INVALID;               
                     end
                 end
                 `OPCODE_J:begin
-                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;
+                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;excreq_o<=`INST_VALID;
                 end
                 `OPCODE_JAL:begin
-                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_LINK;
+                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_LINK;excreq_o<=`INST_VALID;
                 end
                 `OPCODE_BEQ:begin
-                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;
+                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;excreq_o<=`INST_VALID;
                 end
                 `OPCODE_BNE:begin
-                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;
+                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;excreq_o<=`INST_VALID;
                 end
                 `OPCODE_BLEZ:begin
-                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;
+                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;excreq_o<=`INST_VALID;
                 end
                 `OPCODE_BGTZ:begin
-                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;
+                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;excreq_o<=`INST_VALID;
                 end        
                 `OPCODE_ADDI:begin
-                    aluop_o<=`ALUOP_ADD;alusel_o<=`ALUSEL_ARITHMETIC;
+                    aluop_o<=`ALUOP_ADD;alusel_o<=`ALUSEL_ARITHMETIC;excreq_o<=`INST_VALID;
                 end
                 `OPCODE_ADDIU:begin
-                    aluop_o<=`ALUOP_ADDU;alusel_o<=`ALUSEL_ARITHMETIC;
+                    aluop_o<=`ALUOP_ADDU;alusel_o<=`ALUSEL_ARITHMETIC;excreq_o<=`INST_VALID;
                 end
                 `OPCODE_SLTI:begin
-                    aluop_o<=`ALUOP_SLT;alusel_o<=`ALUSEL_ARITHMETIC;
+                    aluop_o<=`ALUOP_SLT;alusel_o<=`ALUSEL_ARITHMETIC;excreq_o<=`INST_VALID;
                 end
                 `OPCODE_SLTIU:begin
-                    aluop_o<=`ALUOP_SLTU;alusel_o<=`ALUSEL_ARITHMETIC;
+                    aluop_o<=`ALUOP_SLTU;alusel_o<=`ALUSEL_ARITHMETIC;excreq_o<=`INST_VALID;
                 end                                             
                 `OPCODE_ANDI:begin
-                    aluop_o<=`ALUOP_AND;alusel_o<=`ALUSEL_LOGIC;
+                    aluop_o<=`ALUOP_AND;alusel_o<=`ALUSEL_LOGIC;excreq_o<=`INST_VALID;
                 end
                 `OPCODE_ORI:begin
-                    aluop_o<=`ALUOP_OR;alusel_o<=`ALUSEL_LOGIC;
+                    aluop_o<=`ALUOP_OR;alusel_o<=`ALUSEL_LOGIC;excreq_o<=`INST_VALID;
                 end
                 `OPCODE_XORI:begin
-                    aluop_o<=`ALUOP_XOR;alusel_o<=`ALUSEL_LOGIC;
+                    aluop_o<=`ALUOP_XOR;alusel_o<=`ALUSEL_LOGIC;excreq_o<=`INST_VALID;
                 end
                 `OPCODE_LUI:begin
-                    aluop_o<=`ALUOP_OR;alusel_o<=`ALUSEL_LOGIC;
+                    aluop_o<=`ALUOP_OR;alusel_o<=`ALUSEL_LOGIC;excreq_o<=`INST_VALID;
                 end
                 `OPCODE_LW:begin
-                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;
+                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;excreq_o<=`INST_VALID;
                 end
                 `OPCODE_SW:begin
-                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;
+                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;excreq_o<=`INST_VALID;
                 end              
                 default:begin
-                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;
+                    aluop_o<=`ALUOP_NOP;alusel_o<=`ALUSEL_NOP;excreq_o<=`INST_INVALID;
                 end
             endcase
         end

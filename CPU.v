@@ -23,6 +23,8 @@ module CPU(
 );
 
 	wire [`INST_ADDR_BUS] pc;
+	wire id_excreq;
+	wire intexcreq;
 	//connect if_id and id
 	wire [`INST_ADDR_BUS] id_pc_i;
 	wire [`INST_BUS] id_inst_i;
@@ -90,6 +92,10 @@ module CPU(
 	wire id_be_o;
 	wire [`INST_ADDR_BUS] id_baddr_o;
 
+	assign rom_addr_o={1'b0,pc[30:0]};
+	assign peri_pc31_o=pc[31];
+	assign intexcreq=peri_intreq_i|id_excreq;
+
 	//pc instantiation
 	PC PC0(
 		.clk(clk),
@@ -98,11 +104,10 @@ module CPU(
 		.be(id_be_o),
 		.baddr(id_baddr_o),
 		.ie(peri_intreq_i),
+		.ee(id_excreq),
 		.pc(pc),
 		.ce(rom_ce_o)
 	);
-	assign rom_addr_o={1'b0,pc[30:0]};
-	assign peri_pc31_o=pc[31];
 	//if_id instantiation
 	IF_ID IF_ID0(
 		.clk(clk),
@@ -152,7 +157,8 @@ module CPU(
 		.lwstallreq_o(id_lwstallreq_o),
 		//to pc
 		.be_o(id_be_o),
-		.baddr_o(id_baddr_o)
+		.baddr_o(id_baddr_o),
+		.excreq_o(id_excreq)
 	);
 	//registerfile instantiation
 	RegisterFile RegisterFile0(
@@ -175,7 +181,7 @@ module CPU(
 		.be(id_be_o),
 		//from pc and cpu
 		.pc(pc),
-		.epce(peri_intreq_i)
+		.epce(intexcreq)
 	);
 	//id_ex instantiation
 	ID_EX ID_EX0(
@@ -305,7 +311,7 @@ module CPU(
 		.id_jbstallreq_i(id_jbstallreq_o),
 		.id_lwstallreq_i(id_lwstallreq_o),
 		.ex_stallreq_i(ex_stallreq_o),
-		.peri_intreq_i(peri_intreq_i),
+		.intexcreq_i(intexcreq),
 		.stall_o(ctrl_stall_o)
 	);
 

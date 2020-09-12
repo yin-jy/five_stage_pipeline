@@ -7,6 +7,7 @@ module PC(
     input wire be,
     input wire [`INST_ADDR_BUS] baddr,
     input wire ie,
+    input wire ee,
     output reg [`INST_ADDR_BUS] pc,
     output reg ce
 );
@@ -20,6 +21,7 @@ module PC(
         if(ce==`CHIP_DISABLE) pc<=`PC_RST_WORD;
         else if (ctrl_stall[0]==`STALL_DISABLE) begin
             if(ie==`TIMER_INT_STATUS) pc<=`PC_INT_WORD;
+            else if(ee==`INST_INVALID) pc<=`PC_EXC_WORD;
             else if(be==`BRANCH_ENABLE) pc<=baddr;
             else pc<={pc[31],(pc[30:0]+31'h0000_0004)};
         end

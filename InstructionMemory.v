@@ -73,6 +73,10 @@ module InstructionMemory(
 						(rom_addr_i==32'h0000_00FC)?32'had090004:
 						(rom_addr_i==32'h0000_0100)?32'h20090003:
 						(rom_addr_i==32'h0000_0104)?32'had090008:
-						(rom_addr_i==32'h0000_0108)?32'h03e00008:
+						(rom_addr_i==32'h0000_0108)?32'h88888888://undefined start
+						(rom_addr_i==32'h0000_010C)?32'h88888888:
+						(rom_addr_i==32'h0000_0110)?32'h88888888:
+						(rom_addr_i==32'h0000_0114)?32'h88888888://undefined end
+						(rom_addr_i==32'h0000_0118)?32'h03e00008:
 						`ZERO_WORD;
 endmodule
