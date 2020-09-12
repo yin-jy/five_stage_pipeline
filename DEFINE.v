@@ -123,6 +123,8 @@
 `define PC_RST_WORD 32'h8000_0000
 `define PC_INT_WORD 32'h8000_0004
 `define PC_EXC_WORD 32'h8000_0008
+`define KERNEL_STATE 1'b1
+`define USER_STATE 1'b0
 
 /**外设控制器PeripheralControl宏定义**/
 `define TL_FULL_WORD 32'hffff_ffff

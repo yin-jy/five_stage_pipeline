@@ -18,6 +18,8 @@ module TOP(
 	wire [`MEM_BUS] peri_rdata;
 	wire peri_cre;
 	wire peri_cwe;
+	wire peri_intreq;
+	wire peri_pc31;
 	//connect cpu and datamemory/peripheralcontrol
 	wire [`MEM_ADDR_BUS] ram_peri_addr;
 	wire [`MEM_BUS] ram_peri_wdata;
@@ -35,8 +37,10 @@ module TOP(
 		.ram_cwe_o(ram_cwe),
 		//with peripheralcontrol
 		.peri_rdata_i(peri_rdata),
+		.peri_intreq_i(peri_intreq),
 		.peri_cre_o(peri_cre),
 		.peri_cwe_o(peri_cwe),
+		.peri_pc31_o(peri_pc31),
 		//with datamemory and peripheralcontrol
 		.ram_peri_addr_o(ram_peri_addr),
 		.ram_peri_wdata_o(ram_peri_wdata)
@@ -65,7 +69,9 @@ module TOP(
 		.peri_cwe_i(peri_cwe),
 		.peri_addr_i(ram_peri_addr),
 		.peri_wdata_i(ram_peri_wdata),
-		.peri_rdata_o(peri_rdata)
+		.peri_pc31_i(peri_pc31),
+		.peri_rdata_o(peri_rdata),
+		.intreq_o(peri_intreq)
 	);
 
     assign temp=rom_data;

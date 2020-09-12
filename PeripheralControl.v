@@ -8,7 +8,9 @@ module PeripheralControl(
     input wire peri_cwe_i,
     input wire [`MEM_ADDR_BUS] peri_addr_i,
     input wire [`MEM_BUS] peri_wdata_i,
-    output wire [`MEM_BUS] peri_rdata_o
+    input wire peri_pc31_i,
+    output wire [`MEM_BUS] peri_rdata_o,
+    output wire intreq_o
 );
 
 	reg [31:0] TH;
@@ -29,6 +31,7 @@ module PeripheralControl(
                         (peri_addr_i==32'h4000_000C)?{24'b0,LED}:
                         (peri_addr_i==32'h4000_0010)?{20'b0,DIGITAL}:
                         (peri_addr_i==32'h4000_0014)?SYSTICK:`ZERO_WORD;
+    assign intreq_o=TCON[2];
 	
     integer i;
 	always @(posedge clk) begin
@@ -45,9 +48,8 @@ module PeripheralControl(
                 (TCON[0]==`TIMER_DISABLE)?TL:
                 (TL==`TL_FULL_WORD)?TH:TL+32'h0000_0001;
             TCON[2]<=   (peri_cwe_i==`WR_ENABLE)&&(peri_addr_i==32'h4000_0008)?peri_wdata_i[2]:   
-                        (TCON[0]==`TIMER_DISABLE)?TCON[2]:
-                        (TL!=`TL_FULL_WORD)?TCON[2]:
-                        (TCON[1]==`INT_DISABLE)?TCON[2]:`TIMER_INT_STATUS;
+                        (TCON[0]==`TIMER_DISABLE)||(TCON[1]==`INT_DISABLE)?TCON[2]:
+                        (TL==`TL_FULL_WORD)&&(peri_pc31_i==`USER_STATE)?`TIMER_INT_STATUS:`TIMER_CNT_STATUS;
             TCON[1]<=(peri_cwe_i==`WR_ENABLE)&&(peri_addr_i==32'h4000_0008)?peri_wdata_i[1]:TCON[1];
             TCON[0]<=(peri_cwe_i==`WR_ENABLE)&&(peri_addr_i==32'h4000_0008)?peri_wdata_i[0]:TCON[0];
             LED<=(peri_cwe_i==`WR_ENABLE)&&(peri_addr_i==32'h4000_000C)?peri_wdata_i[7:0]:LED;

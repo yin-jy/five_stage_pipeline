@@ -14,7 +14,14 @@ module RegisterFile(
 	//from id
 	input wire re2,
 	input wire [`REG_ADDR_BUS] raddr2,
-	output wire [`REG_BUS] rdata2
+	output wire [`REG_BUS] rdata2,
+	//from id
+	input wire [`INST_ADDR_BUS] baddr,
+	input wire be,
+	//from pc
+	input wire [`INST_ADDR_BUS] pc,
+	//from cpu
+	input wire epce
 );
 
 	reg [`REG_BUS] regs[`REG_NUM-1:1];
@@ -29,12 +36,20 @@ module RegisterFile(
 					(re2==`RD_ENABLE)?regs[raddr2]:`ZERO_WORD;
 	
 	integer i;
-	always @(posedge clk)
+	always @(posedge clk) begin
 		if (rst==`RST_ENABLE)
 			for (i=1; i<`REG_NUM; i=i+1)
 				regs[i]<=`ZERO_WORD;
 		else if ((we==`WR_ENABLE)&&(waddr!=`REG_NUM_LOG2'b0))
 			regs[waddr]<=wdata;
-
+		else;
+	end
+	always @(posedge clk) begin
+		if ((rst==`RST_DISABLE)&&(epce==`TIMER_INT_STATUS)) begin
+			if(be==`BRANCH_ENABLE) regs[26]<=baddr;
+			else regs[26]<={1'b0,pc[30:0]};
+		end
+		else ;
+	end
 endmodule
 			

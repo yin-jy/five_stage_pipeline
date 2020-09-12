@@ -13,8 +13,10 @@ module CPU(
 	output wire ram_cwe_o,
 	//with peripheralcontrol
 	input wire [`MEM_BUS] peri_rdata_i,
+	input wire peri_intreq_i,
 	output wire peri_cre_o,
 	output wire peri_cwe_o,
+	output wire peri_pc31_o,
 	//with datamemory and peripheralcontrol
 	output wire [`MEM_ADDR_BUS] ram_peri_addr_o,
 	output wire [`MEM_BUS] ram_peri_wdata_o
@@ -95,10 +97,12 @@ module CPU(
 		.ctrl_stall(ctrl_stall_o),
 		.be(id_be_o),
 		.baddr(id_baddr_o),
+		.ie(peri_intreq_i),
 		.pc(pc),
 		.ce(rom_ce_o)
 	);
 	assign rom_addr_o={1'b0,pc[30:0]};
+	assign peri_pc31_o=pc[31];
 	//if_id instantiation
 	IF_ID IF_ID0(
 		.clk(clk),
@@ -165,7 +169,13 @@ module CPU(
 		//from and to id
 		.re2(id_re2_o),
 		.raddr2(id_raddr2_o),
-		.rdata2(id_rdata2_i)
+		.rdata2(id_rdata2_i),
+		//from id
+		.baddr(id_baddr_o),
+		.be(id_be_o),
+		//from pc and cpu
+		.pc(pc),
+		.epce(peri_intreq_i)
 	);
 	//id_ex instantiation
 	ID_EX ID_EX0(
@@ -295,6 +305,7 @@ module CPU(
 		.id_jbstallreq_i(id_jbstallreq_o),
 		.id_lwstallreq_i(id_lwstallreq_o),
 		.ex_stallreq_i(ex_stallreq_o),
+		.peri_intreq_i(peri_intreq_i),
 		.stall_o(ctrl_stall_o)
 	);
 
