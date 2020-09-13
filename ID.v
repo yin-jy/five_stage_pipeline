@@ -227,11 +227,7 @@ module ID(
                     (opcode!=`OPCODE_SW)?`ZERO_WORD:
                     ((ex_we_i==`WR_ENABLE)&&(ex_waddr_i==raddr2_o)&&(ex_mre_i==`RD_DISABLE))?ex_wdata_i:
                     ((mem_we_i==`WR_ENABLE)&&(mem_waddr_i==raddr2_o))?mem_wdata_i:rdata2_i;
-    assign jbstallreq_o=(rst==`RST_ENABLE)?`STALLREQ_DISABLE:
-                        (opcode==`OPCODE_J)||(opcode==`OPCODE_JAL)||
-                        (opcode==`OPCODE_BEQ)||(opcode==`OPCODE_BNE)||
-                        (opcode==`OPCODE_BLEZ)||(opcode==`OPCODE_BGTZ)||
-                        (opcode==`OPCODE_NOP)&&((funct==`FUNCT_JR)||(funct==`FUNCT_JALR))?`STALLREQ_ENABLE:`STALLREQ_DISABLE;
+    assign jbstallreq_o=be_o;
     assign lwstallreq_o=(ex_we_i==`WR_ENABLE)&&(ex_mre_i==`RD_ENABLE)&&
                         (((re1_o==`RD_ENABLE)&&(ex_waddr_i==raddr1_o))||((re2_o==`RD_ENABLE)&&(ex_waddr_i==raddr2_o)))?`STALLREQ_ENABLE:`STALLREQ_DISABLE;
 
