@@ -40,16 +40,21 @@ module RegisterFile(
 		if (rst==`RST_ENABLE)
 			for (i=1; i<`REG_NUM; i=i+1)
 				regs[i]<=`ZERO_WORD;
-		else if ((we==`WR_ENABLE)&&(waddr!=`REG_NUM_LOG2'b0))
+		else if ((we==`WR_ENABLE)&&(waddr!=`REG_NUM_LOG2'b0)&&(waddr!=32'd26)) begin
 			regs[waddr]<=wdata;
+			if(epce==`TIMER_INT_STATUS) begin
+				if(be==`BRANCH_ENABLE) regs[26]<=baddr;
+				else regs[26]<={1'b0,pc[30:0]};				
+			end
+		end
+		else if (we==`WR_DISABLE) begin
+			if(epce==`TIMER_INT_STATUS) begin
+				if(be==`BRANCH_ENABLE) regs[26]<=baddr;
+				else regs[26]<={1'b0,pc[30:0]};				
+			end
+		end
 		else;
 	end
-	always @(posedge clk) begin
-		if ((rst==`RST_DISABLE)&&(epce==`TIMER_INT_STATUS)) begin
-			if(be==`BRANCH_ENABLE) regs[26]<=baddr;
-			else regs[26]<={1'b0,pc[30:0]};
-		end
-		else ;
-	end
+
 endmodule
 			

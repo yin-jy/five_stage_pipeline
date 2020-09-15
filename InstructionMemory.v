@@ -8,8 +8,8 @@ module InstructionMemory(
 	
 	assign rom_data_o=	(rom_ce_i==`CHIP_DISABLE)?`ZERO_WORD:
 						(rom_addr_i==32'h00000000)?32'h08000003:
-						(rom_addr_i==32'h00000004)?32'h0800019f:
-						(rom_addr_i==32'h00000008)?32'h080001b0:
+						(rom_addr_i==32'h00000004)?32'h080001af:
+						(rom_addr_i==32'h00000008)?32'h080001c3:
 						(rom_addr_i==32'h0000000C)?32'h3c01d091:
 						(rom_addr_i==32'h00000010)?32'h3428bb44:
 						(rom_addr_i==32'h00000014)?32'hac080000:
@@ -419,39 +419,57 @@ module InstructionMemory(
 						(rom_addr_i==32'h00000664)?32'h34280014:
 						(rom_addr_i==32'h00000668)?32'h8d1e0000:
 						(rom_addr_i==32'h0000066C)?32'h03dbd822:
-						(rom_addr_i==32'h00000670)?32'h0c0001b1:
-						(rom_addr_i==32'h00000674)?32'h0800019d:
-						(rom_addr_i==32'h00000678)?32'h00000000:
-						(rom_addr_i==32'h0000067C)?32'h3c014000:
-						(rom_addr_i==32'h00000680)?32'h34280000:
-						(rom_addr_i==32'h00000684)?32'h8d090008:
-						(rom_addr_i==32'h00000688)?32'h3c01ffff:
-						(rom_addr_i==32'h0000068C)?32'h3421fff9:
-						(rom_addr_i==32'h00000690)?32'h01214824:
-						(rom_addr_i==32'h00000694)?32'had090008:
-						(rom_addr_i==32'h00000698)?32'h34081111:
-						(rom_addr_i==32'h0000069C)?32'h34082222:
-						(rom_addr_i==32'h000006A0)?32'h34083333:
-						(rom_addr_i==32'h000006A4)?32'h34084444:
-						(rom_addr_i==32'h000006A8)?32'h3c014000:
-						(rom_addr_i==32'h000006AC)?32'h34280000:
-						(rom_addr_i==32'h000006B0)?32'h8d090008:
-						(rom_addr_i==32'h000006B4)?32'h35290002:
-						(rom_addr_i==32'h000006B8)?32'had090008:
-						(rom_addr_i==32'h000006BC)?32'h03400008:
-						(rom_addr_i==32'h000006C0)?32'h080001b0:
-						(rom_addr_i==32'h000006C4)?32'h3c017fff:
-						(rom_addr_i==32'h000006C8)?32'h3421ffff:
-						(rom_addr_i==32'h000006CC)?32'h03e1f824:
-						(rom_addr_i==32'h000006D0)?32'h3c014000:
-						(rom_addr_i==32'h000006D4)?32'h34280000:
-						(rom_addr_i==32'h000006D8)?32'had000008:
-						(rom_addr_i==32'h000006DC)?32'h3c01ffff:
-						(rom_addr_i==32'h000006E0)?32'h34290000:
-						(rom_addr_i==32'h000006E4)?32'had090000:
-						(rom_addr_i==32'h000006E8)?32'had090004:
-						(rom_addr_i==32'h000006EC)?32'h20090003:
-						(rom_addr_i==32'h000006F0)?32'had090008:
-						(rom_addr_i==32'h000006F4)?32'h03e00008:
+						(rom_addr_i==32'h00000670)?32'h24100200:
+						(rom_addr_i==32'h00000674)?32'h2408017f:
+						(rom_addr_i==32'h00000678)?32'hae080000:
+						(rom_addr_i==32'h0000067C)?32'h2409025b:
+						(rom_addr_i==32'h00000680)?32'hae090004:
+						(rom_addr_i==32'h00000684)?32'h240a046f:
+						(rom_addr_i==32'h00000688)?32'hae0a0008:
+						(rom_addr_i==32'h0000068C)?32'h240b084f:
+						(rom_addr_i==32'h00000690)?32'hae0b000c:
+						(rom_addr_i==32'h00000694)?32'h24110210:
+						(rom_addr_i==32'h00000698)?32'hae3b0000:
+						(rom_addr_i==32'h0000069C)?32'h3c014000:
+						(rom_addr_i==32'h000006A0)?32'h34320010:
+						(rom_addr_i==32'h000006A4)?32'h0c0001c4:
+						(rom_addr_i==32'h000006A8)?32'h34191234:
+						(rom_addr_i==32'h000006AC)?32'h34195678:
+						(rom_addr_i==32'h000006B0)?32'h88888888://undefined instruction
+						(rom_addr_i==32'h000006B4)?32'h080001ad:
+						(rom_addr_i==32'h000006B8)?32'h00000000:
+						(rom_addr_i==32'h000006BC)?32'h3c014000:
+						(rom_addr_i==32'h000006C0)?32'h34280000:
+						(rom_addr_i==32'h000006C4)?32'h8d090008:
+						(rom_addr_i==32'h000006C8)?32'h3c01ffff:
+						(rom_addr_i==32'h000006CC)?32'h3421fff9:
+						(rom_addr_i==32'h000006D0)?32'h01214824:
+						(rom_addr_i==32'h000006D4)?32'had090008:
+						(rom_addr_i==32'h000006D8)?32'h0211402a:
+						(rom_addr_i==32'h000006DC)?32'h11000002:
+						(rom_addr_i==32'h000006E0)?32'h26100004:
+						(rom_addr_i==32'h000006E4)?32'h080001bb:
+						(rom_addr_i==32'h000006E8)?32'h2610fff4:
+						(rom_addr_i==32'h000006EC)?32'h8e080000:
+						(rom_addr_i==32'h000006F0)?32'hae480000:
+						(rom_addr_i==32'h000006F4)?32'h3c014000:
+						(rom_addr_i==32'h000006F8)?32'h34280000:
+						(rom_addr_i==32'h000006FC)?32'h8d090008:
+						(rom_addr_i==32'h00000700)?32'h35290002:
+						(rom_addr_i==32'h00000704)?32'had090008:
+						(rom_addr_i==32'h00000708)?32'h03400008:
+						(rom_addr_i==32'h0000070C)?32'h080001c3:
+						(rom_addr_i==32'h00000710)?32'h3c017fff:
+						(rom_addr_i==32'h00000714)?32'h3421ffff:
+						(rom_addr_i==32'h00000718)?32'h03e1f824:
+						(rom_addr_i==32'h0000071C)?32'h3c014000:
+						(rom_addr_i==32'h00000720)?32'h34280000:
+						(rom_addr_i==32'h00000724)?32'had000008:
+						(rom_addr_i==32'h00000728)?32'h2409d8ef:
+						(rom_addr_i==32'h0000072C)?32'had090000:
+						(rom_addr_i==32'h00000730)?32'had090004:
+						(rom_addr_i==32'h00000734)?32'h20090003:
+						(rom_addr_i==32'h00000738)?32'had090008:
+						(rom_addr_i==32'h0000073C)?32'h03e00008:
 						`ZERO_WORD;
 endmodule
